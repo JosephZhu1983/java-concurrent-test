@@ -13,11 +13,9 @@ import java.util.stream.IntStream;
 public class SemaphoreTest {
     @Test
     public void test() throws InterruptedException {
-        Semaphore semaphore = new Semaphore(10, true);
+        Semaphore semaphore = new Semaphore(10, false);
         ExecutorService threadPool = Executors.newFixedThreadPool(100);
-        IntStream.rangeClosed(1, 10000).forEach(i -> {
-            threadPool.execute(new Player("Player" + i, semaphore));
-        });
+        IntStream.rangeClosed(1, 10000).forEach(i -> threadPool.execute(new Player("Player" + i, semaphore)));
         threadPool.shutdown();
         threadPool.awaitTermination(1, TimeUnit.HOURS);
         Player.result();
