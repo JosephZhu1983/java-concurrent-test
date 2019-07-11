@@ -1,4 +1,4 @@
-package me.josephzhu.javaconcurrenttest.concurrent;
+package me.josephzhu.javaconcurrenttest.concurrent.executors;
 
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;

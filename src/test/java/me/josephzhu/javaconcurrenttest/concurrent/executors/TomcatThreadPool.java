@@ -1,4 +1,4 @@
-package me.josephzhu.javaconcurrenttest.concurrent;
+package me.josephzhu.javaconcurrenttest.concurrent.executors;
 
 import lombok.extern.slf4j.Slf4j;
 
