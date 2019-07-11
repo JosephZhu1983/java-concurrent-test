@@ -1,4 +1,4 @@
-package me.josephzhu.javaconcurrenttest;
+package me.josephzhu.javaconcurrenttest.concurrent;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;

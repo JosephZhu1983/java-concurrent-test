@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 @Slf4j
@@ -25,11 +24,13 @@ public class ForkJoinPoolBenchmark {
         normal.shutdown();
         normal.awaitTermination(1, TimeUnit.HOURS);
         stopWatch.stop();
+        long r = atomicLong.get();
         stopWatch.start("forkjoin");
         LongStream.rangeClosed(1, 10000000).forEach(__->forkjoin.submit(atomicLong::incrementAndGet));
         forkjoin.shutdown();
         forkjoin.awaitTermination(1, TimeUnit.HOURS);
         stopWatch.stop();
-        log.info("result:{}{}", stopWatch.prettyPrint(), atomicLong.get());
+        log.info(stopWatch.prettyPrint());
+        log.info("result:{},{}", r, atomicLong.get());
     }
 }

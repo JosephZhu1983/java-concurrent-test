@@ -1,7 +1,6 @@
 package me.josephzhu.javaconcurrenttest.concurrent;
 
 import lombok.extern.slf4j.Slf4j;
-import me.josephzhu.javaconcurrenttest.ThreadFactoryImpl;
 import org.junit.Test;
 
 import java.util.concurrent.*;
@@ -15,7 +14,7 @@ public class ThreadPoolExecutorTest {
     public void test() throws InterruptedException {
         AtomicInteger atomicInteger = new AtomicInteger();
 
-        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(20) {
+        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(10) {
             @Override
             public boolean offer(Runnable e) {
                 if (size() == 0) {
@@ -37,14 +36,19 @@ public class ThreadPoolExecutorTest {
             }
         });
 
+//        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
+//                2, 5,
+//                5, TimeUnit.SECONDS,
+//                new ArrayBlockingQueue<>(10));
+
         threadPool.allowCoreThreadTimeOut(true);
 
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             log.info("=========================");
-            log.info("Pool Size:{}", threadPool.getPoolSize());
-            log.info("Active Threads:{}", threadPool.getActiveCount());
-            log.info("Number of Tasks Completed:{}", threadPool.getCompletedTaskCount());
-            log.info("Totel Number of Tasks: {}", threadPool.getTaskCount());
+            log.info("Pool Size: {}", threadPool.getPoolSize());
+            log.info("Active Threads: {}", threadPool.getActiveCount());
+            log.info("Number of Tasks Completed: {}", threadPool.getCompletedTaskCount());
+            log.info("Total Number of Tasks: {}", threadPool.getTaskCount());
             log.info("=========================");
         }, 0, 1, TimeUnit.SECONDS);
 

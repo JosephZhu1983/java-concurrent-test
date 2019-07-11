@@ -1,8 +1,6 @@
 package me.josephzhu.javaconcurrenttest.concurrent;
 
 import lombok.extern.slf4j.Slf4j;
-import me.josephzhu.javaconcurrenttest.TomcatTaskQueue;
-import me.josephzhu.javaconcurrenttest.TomcatThreadPool;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -27,7 +25,7 @@ public class TomcatThreadPoolTest {
 
         IntStream.rangeClosed(1, 10).forEach(i -> threadPool.execute(() -> {
             log.info("Quick task I'm done : {}", i);
-        }, 1050, TimeUnit.MILLISECONDS));
+        }, 1010, TimeUnit.MILLISECONDS));
 
         threadPool.shutdown();
         threadPool.awaitTermination(1, TimeUnit.HOURS);
