@@ -1,20 +1,21 @@
 package me.josephzhu.javaconcurrenttest.concurrent;
 
 import lombok.extern.slf4j.Slf4j;
+import me.josephzhu.javaconcurrenttest.ThreadFactoryImpl;
 import org.junit.Test;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
 @Slf4j
 public class ThreadPoolExecutorTest {
 
     @Test
-    public void testThreadPoolSize() throws InterruptedException {
+    public void test() throws InterruptedException {
         AtomicInteger atomicInteger = new AtomicInteger();
-        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(20) {
+
+        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(20) {
             @Override
             public boolean offer(Runnable e) {
                 if (size() == 0) {
@@ -25,31 +26,10 @@ public class ThreadPoolExecutorTest {
             }
         };
 
-        class ThreadFactoryImpl implements ThreadFactory {
-            private final AtomicLong threadIndex = new AtomicLong(0);
-            private final String threadNamePrefix;
-            private final boolean daemon;
-
-            public ThreadFactoryImpl(final String threadNamePrefix) {
-                this(threadNamePrefix, false);
-            }
-
-            public ThreadFactoryImpl(final String threadNamePrefix, boolean daemon) {
-                this.threadNamePrefix = threadNamePrefix;
-                this.daemon = daemon;
-            }
-
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread thread = new Thread(r, threadNamePrefix + this.threadIndex.incrementAndGet());
-                thread.setDaemon(daemon);
-                return thread;
-            }
-        }
-
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(2, 5,
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
+                2, 5,
                 5, TimeUnit.SECONDS,
-                queue, new ThreadFactoryImpl("aa"), (r, executor) -> {
+                queue, new ThreadFactoryImpl("elastic-pool"), (r, executor) -> {
             try {
                 executor.getQueue().put(r);
             } catch (InterruptedException e) {
@@ -57,8 +37,7 @@ public class ThreadPoolExecutorTest {
             }
         });
 
-        threadPool.allowCoreThreadTimeOut(false);
-
+        threadPool.allowCoreThreadTimeOut(true);
 
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
             log.info("=========================");
@@ -69,12 +48,12 @@ public class ThreadPoolExecutorTest {
             log.info("=========================");
         }, 0, 1, TimeUnit.SECONDS);
 
-        IntStream.rangeClosed(1, 100).forEach(i -> {
-//                try {
-//                    TimeUnit.SECONDS.sleep(1);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
+        IntStream.rangeClosed(1, 20).forEach(i -> {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             int id = atomicInteger.incrementAndGet();
             log.info("{} started", id);
 
@@ -87,9 +66,7 @@ public class ThreadPoolExecutorTest {
                 log.info("{} finished", id);
             });
         });
-        //threadPool.shutdown();
-        //threadPool.awaitTermination(1, TimeUnit.HOURS);
-
-        Thread.sleep(60000);
+        threadPool.shutdown();
+        threadPool.awaitTermination(1, TimeUnit.HOURS);
     }
 }

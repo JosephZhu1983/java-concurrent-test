@@ -14,7 +14,7 @@ import java.util.stream.LongStream;
 @Slf4j
 public class ForkJoinPoolBenchmark {
     @Test
-    public void benchmark() throws InterruptedException {
+    public void test() throws InterruptedException {
         AtomicLong atomicLong = new AtomicLong();
         StopWatch stopWatch = new StopWatch();
         ExecutorService normal = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
