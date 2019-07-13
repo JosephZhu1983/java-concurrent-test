@@ -1,5 +1,6 @@
 package me.josephzhu.javaconcurrenttest.concurrent.executors;
 
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -11,23 +12,38 @@ public class TomcatThreadPoolTest {
 
     @Test
     public void test() throws InterruptedException {
-        TomcatTaskQueue taskqueue = new TomcatTaskQueue(10);
+        TomcatTaskQueue taskqueue = new TomcatTaskQueue(5);
         TomcatThreadPool threadPool = new TomcatThreadPool(2, 5, 0, TimeUnit.HOURS, taskqueue);
         taskqueue.setParent(threadPool);
-        IntStream.rangeClosed(1, 10).forEach(i -> threadPool.execute(() -> {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            log.info("Slow task I'm done : {}", i);
-        }));
-
-        IntStream.rangeClosed(1, 10).forEach(i -> threadPool.execute(() -> {
-            log.info("Quick task I'm done : {}", i);
-        }, 1010, TimeUnit.MILLISECONDS));
+        IntStream.rangeClosed(1, 10).forEach(i -> threadPool.execute(new Task(true, i)));
+        IntStream.rangeClosed(1, 10).forEach(i -> threadPool.execute(new Task(false, i)
+                , 1050, TimeUnit.MILLISECONDS));
 
         threadPool.shutdown();
         threadPool.awaitTermination(1, TimeUnit.HOURS);
+    }
+
+    @ToString
+    class Task implements Runnable {
+        private boolean slow;
+        private String name;
+
+        public Task(boolean slow, int index) {
+            this.slow = slow;
+            this.name = String.format("%s-%d", slow ? "slow" : "quick", index);
+        }
+
+        @Override
+        public void run() {
+            log.info("Start:{}", name);
+            if (slow) {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            log.info("Finish:{}", name);
+        }
     }
 }

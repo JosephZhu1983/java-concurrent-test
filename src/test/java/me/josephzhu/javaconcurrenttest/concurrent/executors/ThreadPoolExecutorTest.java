@@ -10,18 +10,60 @@ import java.util.stream.IntStream;
 @Slf4j
 public class ThreadPoolExecutorTest {
 
+    private void printStats(ThreadPoolExecutor threadPool) {
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            log.info("=========================");
+            log.info("Pool Size: {}", threadPool.getPoolSize());
+            log.info("Active Threads: {}", threadPool.getActiveCount());
+            log.info("Number of Tasks Completed: {}", threadPool.getCompletedTaskCount());
+            log.info("Number of Tasks in Queue: {}", threadPool.getQueue().size());
+
+            log.info("=========================");
+        }, 0, 1, TimeUnit.SECONDS);
+    }
+
+    private void submitTasks(AtomicInteger atomicInteger, ThreadPoolExecutor threadPool) {
+        IntStream.rangeClosed(1, 20).forEach(i -> {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            int id = atomicInteger.incrementAndGet();
+            threadPool.submit(() -> {
+                log.info("{} started", id);
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                log.info("{} finished", id);
+            });
+        });
+    }
+
     @Test
-    public void test() throws InterruptedException {
+    public void test1() throws InterruptedException {
+        AtomicInteger atomicInteger = new AtomicInteger();
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
+                2, 5,
+                5, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(10));
+        //threadPool.prestartAllCoreThreads();
+        printStats(threadPool);
+        submitTasks(atomicInteger, threadPool);
+        threadPool.shutdown();
+        threadPool.awaitTermination(1, TimeUnit.HOURS);
+    }
+
+    @Test
+    public void test2() throws InterruptedException {
         AtomicInteger atomicInteger = new AtomicInteger();
 
         BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(10) {
             @Override
             public boolean offer(Runnable e) {
-                if (size() == 0) {
-                    return super.offer(e);
-                } else {
-                    return false;
-                }
+                return false;
             }
         };
 
@@ -36,40 +78,23 @@ public class ThreadPoolExecutorTest {
             }
         });
 
-//        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
-//                2, 5,
-//                5, TimeUnit.SECONDS,
-//                new ArrayBlockingQueue<>(10));
-
         threadPool.allowCoreThreadTimeOut(true);
+        printStats(threadPool);
+        submitTasks(atomicInteger, threadPool);
+        threadPool.shutdown();
+        threadPool.awaitTermination(1, TimeUnit.HOURS);
+    }
 
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            log.info("=========================");
-            log.info("Pool Size: {}", threadPool.getPoolSize());
-            log.info("Active Threads: {}", threadPool.getActiveCount());
-            log.info("Number of Tasks Completed: {}", threadPool.getCompletedTaskCount());
-            log.info("Total Number of Tasks: {}", threadPool.getTaskCount());
-            log.info("=========================");
-        }, 0, 1, TimeUnit.SECONDS);
-
-        IntStream.rangeClosed(1, 20).forEach(i -> {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            int id = atomicInteger.incrementAndGet();
-            log.info("{} started", id);
-
-            threadPool.submit(() -> {
-                try {
-                    TimeUnit.SECONDS.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                log.info("{} finished", id);
-            });
-        });
+    @Test
+    public void test3() throws InterruptedException {
+        AtomicInteger atomicInteger = new AtomicInteger();
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
+                5, 5,
+                5, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(10));
+        threadPool.allowCoreThreadTimeOut(true);
+        printStats(threadPool);
+        submitTasks(atomicInteger, threadPool);
         threadPool.shutdown();
         threadPool.awaitTermination(1, TimeUnit.HOURS);
     }
