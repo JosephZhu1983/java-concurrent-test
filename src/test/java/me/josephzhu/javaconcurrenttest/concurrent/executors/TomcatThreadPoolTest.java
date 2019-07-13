@@ -13,7 +13,7 @@ public class TomcatThreadPoolTest {
     @Test
     public void test() throws InterruptedException {
         TomcatTaskQueue taskqueue = new TomcatTaskQueue(5);
-        TomcatThreadPool threadPool = new TomcatThreadPool(2, 5, 0, TimeUnit.HOURS, taskqueue);
+        TomcatThreadPool threadPool = new TomcatThreadPool(2, 5, 60, TimeUnit.SECONDS, taskqueue);
         taskqueue.setParent(threadPool);
         IntStream.rangeClosed(1, 10).forEach(i -> threadPool.execute(new Task(true, i)));
         IntStream.rangeClosed(1, 10).forEach(i -> threadPool.execute(new Task(false, i)

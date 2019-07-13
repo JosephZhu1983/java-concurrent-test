@@ -15,10 +15,10 @@ public class ScheduledExecutorServiceTest {
     @Test
     public void test1() throws InterruptedException {
         AtomicInteger scheduleAtFixedRateTotal = new AtomicInteger();
-        ScheduledExecutorService scheduleAtFixedRateExecutorService = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService scheduleAtFixedRateExecutorService = Executors.newScheduledThreadPool(2);
         ScheduledFuture scheduleAtFixedRateTotalFuture = scheduleAtFixedRateExecutorService.scheduleAtFixedRate(() -> {
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -28,18 +28,18 @@ public class ScheduledExecutorServiceTest {
         while (!scheduleAtFixedRateTotalFuture.isDone()) TimeUnit.MILLISECONDS.sleep(1);
         Assert.assertEquals(11, scheduleAtFixedRateTotal.get());
 
-        AtomicInteger scheduleWithFixedDelayTotal = new AtomicInteger();
-        ScheduledExecutorService scheduleWithFixedDelayExecutorService = Executors.newSingleThreadScheduledExecutor();
-        ScheduledFuture scheduleWithFixedDelayFuture = scheduleWithFixedDelayExecutorService.scheduleWithFixedDelay(() -> {
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            log.info("scheduleWithFixedDelay:" + scheduleWithFixedDelayTotal.incrementAndGet());
-        }, 0, 100, TimeUnit.MILLISECONDS);
-        scheduleWithFixedDelayExecutorService.schedule(() -> scheduleWithFixedDelayFuture.cancel(false), 1, TimeUnit.SECONDS);
-        while (!scheduleWithFixedDelayFuture.isDone()) TimeUnit.MILLISECONDS.sleep(1);
-        Assert.assertEquals(5, scheduleWithFixedDelayTotal.get());
+//        AtomicInteger scheduleWithFixedDelayTotal = new AtomicInteger();
+//        ScheduledExecutorService scheduleWithFixedDelayExecutorService = Executors.newSingleThreadScheduledExecutor();
+//        ScheduledFuture scheduleWithFixedDelayFuture = scheduleWithFixedDelayExecutorService.scheduleWithFixedDelay(() -> {
+//            try {
+//                TimeUnit.MILLISECONDS.sleep(100);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            log.info("scheduleWithFixedDelay:" + scheduleWithFixedDelayTotal.incrementAndGet());
+//        }, 0, 100, TimeUnit.MILLISECONDS);
+//        scheduleWithFixedDelayExecutorService.schedule(() -> scheduleWithFixedDelayFuture.cancel(false), 1, TimeUnit.SECONDS);
+//        while (!scheduleWithFixedDelayFuture.isDone()) TimeUnit.MILLISECONDS.sleep(1);
+//        Assert.assertEquals(5, scheduleWithFixedDelayTotal.get());
     }
 }
