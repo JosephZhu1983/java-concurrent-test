@@ -22,7 +22,7 @@ public class QueueBenchmark {
     public void test() throws InterruptedException {
 
         List<Queue<Integer>> queues = getQueues();
-        benchmark("add", getQueues(), taskCount, threadCount);
+        benchmark("add", queues, taskCount, threadCount);
         benchmark("poll", queues, taskCount, threadCount);
         benchmark("offer", queues, taskCount, threadCount);
         benchmark("remove", queues, taskCount, threadCount);

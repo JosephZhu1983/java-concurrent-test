@@ -9,14 +9,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class Consumer extends Worker {
 
-    private static AtomicInteger atomicInteger = new AtomicInteger();
+    private static AtomicInteger totalConsumedAfterShutdown = new AtomicInteger();
 
     public Consumer(String name, BlockingQueue<Integer> queue) {
         super(name, queue);
     }
 
     public static int totalConsumedAfterShutdown() {
-        return atomicInteger.get();
+        return totalConsumedAfterShutdown.get();
     }
 
     @Override
@@ -25,8 +25,9 @@ public class Consumer extends Worker {
             try {
                 Integer item = queue.poll(1, TimeUnit.SECONDS);
                 log.info("size:{}, got:{}, enable:{}", queue.size(), item, enable);
-                if (!enable && item != null)
-                    atomicInteger.incrementAndGet();
+                if (!enable && item != null) {
+                    totalConsumedAfterShutdown.incrementAndGet();
+                }
                 TimeUnit.MILLISECONDS.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
