@@ -17,7 +17,7 @@ public class PhaserTest {
     @Test
     public void test() throws InterruptedException {
         AtomicInteger atomicInteger = new AtomicInteger();
-        int iterations = 1000;
+        int iterations = 10;
         int tasks = 100;
         runTasks(IntStream.rangeClosed(1, tasks)
                 .mapToObj(index -> new Thread(() -> {
