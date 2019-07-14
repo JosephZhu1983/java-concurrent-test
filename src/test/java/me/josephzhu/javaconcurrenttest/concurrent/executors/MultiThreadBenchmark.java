@@ -11,11 +11,9 @@ import java.util.stream.IntStream;
 
 @Slf4j
 public class MultiThreadBenchmark {
-
-
     @Test
     public void test() throws InterruptedException {
-        int taskCount = 100000000;
+        int taskCount = 10000000;
         int threadCount = 10;
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("stream");

@@ -32,6 +32,7 @@ public class QueueBenchmark {
         return Arrays.asList(new ConcurrentLinkedQueue<>(),
                 new LinkedBlockingQueue<>(),
                 new ArrayBlockingQueue<>(taskCount, false),
+                new LinkedTransferQueue<>(),
                 new PriorityBlockingQueue<>(),
                 new LinkedList<>());
     }
