@@ -5,28 +5,28 @@ import org.junit.Test;
 import org.springframework.util.StopWatch;
 
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.IntStream;
 
 @Slf4j
-public class ConcurrentHashMapTest {
+public class ConcurrentMapTest {
 
-    int loopCount = 10000000;
+    int loopCount = 100000000;
     int threadCount = 10;
     int itemCount = 10000;
 
     @Test
     public void test() throws InterruptedException {
         StopWatch stopWatch = new StopWatch();
-        stopWatch.start("normal");
+        stopWatch.start("hashmap");
         normal();
         stopWatch.stop();
-        stopWatch.start("concurrent");
+        stopWatch.start("concurrentHashMap");
         concurrent();
+        stopWatch.stop();
+        stopWatch.start("concurrentSkipListMap");
+        concurrentSkipListMap();
         stopWatch.stop();
         log.info(stopWatch.prettyPrint());
     }
@@ -47,7 +47,7 @@ public class ConcurrentHashMapTest {
         ));
         forkJoinPool.shutdown();
         forkJoinPool.awaitTermination(1, TimeUnit.HOURS);
-        log.debug("normal:{}", freqs);
+        //log.debug("normal:{}", freqs);
 
     }
 
@@ -61,6 +61,19 @@ public class ConcurrentHashMapTest {
         ));
         forkJoinPool.shutdown();
         forkJoinPool.awaitTermination(1, TimeUnit.HOURS);
-        log.debug("concurrent:{}", freqs);
+        //log.debug("concurrentHashMap:{}", freqs);
+    }
+
+    private void concurrentSkipListMap() throws InterruptedException {
+        ConcurrentSkipListMap<String, LongAdder> freqs = new ConcurrentSkipListMap<>();
+        ForkJoinPool forkJoinPool = new ForkJoinPool(threadCount);
+        forkJoinPool.execute(() -> IntStream.rangeClosed(1, loopCount).parallel().forEach(i -> {
+                    String key = "item" + ThreadLocalRandom.current().nextInt(itemCount);
+                    freqs.computeIfAbsent(key, k -> new LongAdder()).increment();
+                }
+        ));
+        forkJoinPool.shutdown();
+        forkJoinPool.awaitTermination(1, TimeUnit.HOURS);
+        //log.debug("concurrentSkipListMap:{}", freqs);
     }
 }
