@@ -17,7 +17,7 @@ public class PutIfAbsentTest {
         log.info("putIfAbsent:{}", concurrentHashMap.putIfAbsent("test", getValue()));
         log.info("computeIfAbsent:{}", concurrentHashMap.computeIfAbsent("test", k -> getValue()));
         log.info("putIfAbsent again:{}", concurrentHashMap.putIfAbsent("test", getValue()));
-        log.info("computeIfAbsent agin:{}", concurrentHashMap.computeIfAbsent("test", k -> getValue()));
+        log.info("computeIfAbsent again:{}", concurrentHashMap.computeIfAbsent("test", k -> getValue()));
     }
 
     private String getValue() {
