@@ -7,10 +7,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-public class Producer extends Worker {
+public class Producer2 extends Worker {
     private static AtomicInteger atomicInteger = new AtomicInteger(0);
 
-    public Producer(String name, BlockingQueue<Integer> queue) {
+    public Producer2(String name, BlockingQueue<Integer> queue) {
         super(name, queue);
     }
 
@@ -19,8 +19,8 @@ public class Producer extends Worker {
         while (enable) {
             try {
                 int value = atomicInteger.incrementAndGet();
-                queue.put(value);
-                log.info("size:{}, put:{}, enable:{}", queue.size(), value, enable);
+                if (queue.offer(value))
+                    log.info("size:{}, put:{}, enable:{}", queue.size(), value, enable);
                 TimeUnit.MILLISECONDS.sleep(100);
             } catch (InterruptedException e) {
             }

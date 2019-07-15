@@ -7,11 +7,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-public class Consumer extends Worker {
+public class Consumer2 extends Worker {
 
     private static AtomicInteger totalConsumedAfterShutdown = new AtomicInteger();
 
-    public Consumer(String name, BlockingQueue<Integer> queue) {
+    public Consumer2(String name, BlockingQueue<Integer> queue) {
         super(name, queue);
     }
 
@@ -23,10 +23,9 @@ public class Consumer extends Worker {
     public void run() {
         while (enable || queue.size() > 0) {
             try {
-                // When code runs to this line, queue cloud be empty, and take() would be blocked by forever!
-                Integer item = queue.take();
+                Integer item = queue.poll(1, TimeUnit.SECONDS);
                 log.info("size:{}, got:{}, enable:{}", queue.size(), item, enable);
-                if (!enable) {
+                if (!enable && item != null) {
                     totalConsumedAfterShutdown.incrementAndGet();
                 }
                 TimeUnit.MILLISECONDS.sleep(200);
