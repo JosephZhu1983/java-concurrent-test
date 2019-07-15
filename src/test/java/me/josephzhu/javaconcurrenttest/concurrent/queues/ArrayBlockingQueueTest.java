@@ -15,7 +15,7 @@ public class ArrayBlockingQueueTest {
 
     @Test
     public void test() throws InterruptedException {
-        BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(100, false);
+        BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(50, false);
         List<Worker> workers = new ArrayList<>();
         List<Thread> threads = new ArrayList<>();
 

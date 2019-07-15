@@ -27,6 +27,7 @@ public class BlockingQueueBenchmark {
     private List<BlockingQueue<Integer>> getQueues() {
         return Arrays.asList(
                 new LinkedBlockingQueue<>(),
+                new LinkedTransferQueue<>(),
                 new ArrayBlockingQueue<>(taskCount, false),
                 new PriorityBlockingQueue<>());
     }
