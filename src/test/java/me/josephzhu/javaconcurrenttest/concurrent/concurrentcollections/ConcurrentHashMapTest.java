@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.springframework.util.StopWatch;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ThreadLocalRandom;
@@ -16,9 +15,9 @@ import java.util.stream.IntStream;
 @Slf4j
 public class ConcurrentHashMapTest {
 
-    int loopCount = 100000000;
-    int threadCount = 8;
-    int itemCount = 100;
+    int loopCount = 10000000;
+    int threadCount = 10;
+    int itemCount = 10000;
 
     @Test
     public void test() throws InterruptedException {
@@ -33,7 +32,7 @@ public class ConcurrentHashMapTest {
     }
 
     private void normal() throws InterruptedException {
-        Map<String, Long> freqs = new HashMap<>();
+        HashMap<String, Long> freqs = new HashMap<>();
         ForkJoinPool forkJoinPool = new ForkJoinPool(threadCount);
         forkJoinPool.execute(() -> IntStream.rangeClosed(1, loopCount).parallel().forEach(i -> {
                     String key = "item" + ThreadLocalRandom.current().nextInt(itemCount);
@@ -48,10 +47,12 @@ public class ConcurrentHashMapTest {
         ));
         forkJoinPool.shutdown();
         forkJoinPool.awaitTermination(1, TimeUnit.HOURS);
+        log.debug("normal:{}", freqs);
+
     }
 
     private void concurrent() throws InterruptedException {
-        Map<String, LongAdder> freqs = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, LongAdder> freqs = new ConcurrentHashMap<>(itemCount);
         ForkJoinPool forkJoinPool = new ForkJoinPool(threadCount);
         forkJoinPool.execute(() -> IntStream.rangeClosed(1, loopCount).parallel().forEach(i -> {
                     String key = "item" + ThreadLocalRandom.current().nextInt(itemCount);
@@ -60,5 +61,6 @@ public class ConcurrentHashMapTest {
         ));
         forkJoinPool.shutdown();
         forkJoinPool.awaitTermination(1, TimeUnit.HOURS);
+        log.debug("concurrent:{}", freqs);
     }
 }
