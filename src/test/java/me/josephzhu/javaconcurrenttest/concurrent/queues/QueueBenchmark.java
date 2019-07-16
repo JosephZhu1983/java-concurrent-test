@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class QueueBenchmark {
 
-    int taskCount = 200000;
+    int taskCount = 20000000;
     int threadCount = 10;
 
     @Test
@@ -48,7 +48,7 @@ public class QueueBenchmark {
                 e.printStackTrace();
             }
             stopWatch.stop();
-            log.info("queue:{}, operation:{}, size:{}", queue.getClass().getSimpleName(), operation, queue.size());
+            log.info("queue:{}, operation:{}, size:{}, qps:{}", queue.getClass().getSimpleName(), operation, queue.size(), (long) taskCount * 1000 / stopWatch.getLastTaskTimeMillis());
         });
         log.info(stopWatch.prettyPrint());
     }
