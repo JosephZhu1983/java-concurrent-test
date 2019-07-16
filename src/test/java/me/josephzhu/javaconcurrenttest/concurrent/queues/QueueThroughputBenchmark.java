@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 @Slf4j
 public class QueueThroughputBenchmark {
 
-    private final static int element_count = 100000000;
+    private final static int element_count = 10000000;
 
     @Test
     public void test() throws InterruptedException {
@@ -21,16 +21,24 @@ public class QueueThroughputBenchmark {
         testCases.add(new TestCase(element_count, Mode.ConcurrentProducerAndConsumer, 1, 1));
         testCases.add(new TestCase(element_count, Mode.ConcurrentProducerAndConsumer, 10, 10));
         testCases.add(new TestCase(element_count, Mode.ConcurrentProducerAndConsumer, 100, 100));
+        testCases.add(new TestCase(element_count, Mode.ConcurrentProducerAndConsumer, 1000, 1000));
+        testCases.add(new TestCase(element_count, Mode.ConcurrentProducerAndConsumer, Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()));
+
         testCases.add(new TestCase(element_count, Mode.ConcurrentProducerAndConsumer, 1, 100));
         testCases.add(new TestCase(element_count, Mode.ConcurrentProducerAndConsumer, 100, 1));
 
         testCases.add(new TestCase(element_count, Mode.ProducerAndConsumerShareThread, 1, 0));
         testCases.add(new TestCase(element_count, Mode.ProducerAndConsumerShareThread, 10, 0));
         testCases.add(new TestCase(element_count, Mode.ProducerAndConsumerShareThread, 100, 0));
+        testCases.add(new TestCase(element_count, Mode.ProducerAndConsumerShareThread, 1000, 0));
+        testCases.add(new TestCase(element_count, Mode.ProducerAndConsumerShareThread, Runtime.getRuntime().availableProcessors(), 0));
+
 
         testCases.add(new TestCase(element_count, Mode.ProducerAndThenConsumer, 1, 1));
         testCases.add(new TestCase(element_count, Mode.ProducerAndThenConsumer, 10, 10));
         testCases.add(new TestCase(element_count, Mode.ProducerAndThenConsumer, 100, 100));
+        testCases.add(new TestCase(element_count, Mode.ProducerAndThenConsumer, 1000, 1000));
+        testCases.add(new TestCase(element_count, Mode.ProducerAndThenConsumer, Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()));
 
         LinkedBlockingQueue<String> linkedBlockingQueue = new LinkedBlockingQueue<>();
         for (TestCase testCase : testCases) {
