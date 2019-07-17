@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 public class QueueBenchmark {
 
     int taskCount = 10000000;
-    int threadCount = 10;
+    int threadCount = 1000;
 
     @Test
     public void test() throws InterruptedException {

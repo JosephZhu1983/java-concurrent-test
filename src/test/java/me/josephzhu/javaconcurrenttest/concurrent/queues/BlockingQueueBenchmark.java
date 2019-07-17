@@ -6,14 +6,17 @@ import org.springframework.util.StopWatch;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
 @Slf4j
 public class BlockingQueueBenchmark {
 
-    int taskCount = 10000000;
+    int taskCount = 1000000;
     int threadCount = 10;
 
     @Test
@@ -26,11 +29,17 @@ public class BlockingQueueBenchmark {
     }
 
     private List<BlockingQueue<Integer>> getQueues() {
+//        return Arrays.asList(
+//                new LinkedBlockingQueue<>(),
+//                new LinkedTransferQueue<>(),
+//                new ArrayBlockingQueue<>(taskCount, false),
+//                new PriorityBlockingQueue<>());
+
         return Arrays.asList(
-                new LinkedBlockingQueue<>(),
-                new LinkedTransferQueue<>(),
+
                 new ArrayBlockingQueue<>(taskCount, false),
-                new PriorityBlockingQueue<>());
+                new ArrayBlockingQueue<>(taskCount, true)
+        );
     }
 
     private void benchmark(String operation, List<BlockingQueue<Integer>> queues, int taskCount, int threadCount) throws InterruptedException {
