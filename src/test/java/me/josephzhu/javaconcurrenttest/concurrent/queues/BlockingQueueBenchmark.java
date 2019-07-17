@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class BlockingQueueBenchmark {
 
-    int taskCount = 20000000;
+    int taskCount = 10000000;
     int threadCount = 10;
 
     @Test
@@ -21,6 +21,7 @@ public class BlockingQueueBenchmark {
 
         List<BlockingQueue<Integer>> queues = getQueues();
         benchmark("put", queues, taskCount, threadCount);
+        System.gc();
         benchmark("take", queues, taskCount, threadCount);
     }
 

@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class QueueBenchmark {
 
-    int taskCount = 20000000;
+    int taskCount = 10000000;
     int threadCount = 10;
 
     @Test
@@ -23,10 +23,14 @@ public class QueueBenchmark {
 
         List<Queue<Integer>> queues = getQueues();
         benchmark("add", queues, taskCount, threadCount);
+        System.gc();
         benchmark("poll", queues, taskCount, threadCount);
+        System.gc();
         benchmark("offer", queues, taskCount, threadCount);
-        benchmark("size", queues, taskCount, threadCount);
+        System.gc();
+        //benchmark("size", queues, taskCount, threadCount);
         benchmark("remove", queues, taskCount, threadCount);
+        System.gc();
     }
 
     private List<Queue<Integer>> getQueues() {

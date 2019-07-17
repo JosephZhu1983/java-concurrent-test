@@ -18,11 +18,11 @@ public class DelayQueueTest {
     public void test() throws InterruptedException {
         DelayQueue<Message> delayQueue = new DelayQueue<>();
         IntStream.rangeClosed(1, 10).forEach(i -> {
-            for (int __ = 0; __ < 1000; __++)
+            for (int __ = 0; __ < 2; __++)
                 delayQueue.add(new Message(i * 1000));
         });
 
-        Executors.newFixedThreadPool(10).submit(() -> {
+        Executors.newFixedThreadPool(1).submit(() -> {
             while (true) {
                 Message message = delayQueue.take();
                 log.debug("Got:{}", message);

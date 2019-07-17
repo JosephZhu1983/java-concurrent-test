@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 @Slf4j
 public class QueueThroughputBenchmark {
 
-    private final static int element_count = 10000000;
+    private final static int element_count = 50000000;
 
     @Test
     public void test() throws InterruptedException {
@@ -130,7 +130,7 @@ public class QueueThroughputBenchmark {
         long finish = System.currentTimeMillis();
         log.info("Finish benchmark Queue:[{}], case:{}, QPS:{}\r\n==========================\n", queue.getClass().getSimpleName(),
                 testCase.toString(),
-                (long) element_count * 1000 / (finish - begin));
+                (long) element_count / (finish - begin) / 10);
     }
 
     enum Mode {

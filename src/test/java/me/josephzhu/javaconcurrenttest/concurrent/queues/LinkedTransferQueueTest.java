@@ -13,7 +13,7 @@ public class LinkedTransferQueueTest {
     LinkedTransferQueue<String> linkedTransferQueue = new LinkedTransferQueue<>();
     LinkedBlockingQueue<String> linkedBlockingQueue = new LinkedBlockingQueue<>();
 
-    int taskCount = 1000000;
+    int taskCount = 10000000;
     int threadCount = 10;
 
     @Test

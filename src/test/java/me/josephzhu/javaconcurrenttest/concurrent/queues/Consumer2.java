@@ -22,13 +22,15 @@ public class Consumer2 extends Worker {
     @Override
     public void run() {
         while (enable || queue.size() > 0) {
+
             try {
+                TimeUnit.MILLISECONDS.sleep(200);
+
                 Integer item = queue.poll(1, TimeUnit.SECONDS);
                 log.info("size:{}, got:{}, enable:{}", queue.size(), item, enable);
                 if (!enable && item != null) {
                     totalConsumedAfterShutdown.incrementAndGet();
                 }
-                TimeUnit.MILLISECONDS.sleep(200);
             } catch (InterruptedException e) {
             }
         }

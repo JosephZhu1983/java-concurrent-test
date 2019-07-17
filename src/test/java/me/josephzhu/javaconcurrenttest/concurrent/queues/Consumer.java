@@ -30,6 +30,7 @@ public class Consumer extends Worker {
                     totalConsumedAfterShutdown.incrementAndGet();
                 }
                 TimeUnit.MILLISECONDS.sleep(200);
+
             } catch (InterruptedException e) {
             }
         }

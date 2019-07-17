@@ -30,7 +30,7 @@ public class ArrayBlockingQueueTest {
         }
         for (int i = 0; i < 4; i++) {
             String name = "Consumer" + i;
-            Consumer worker = new Consumer(name, queue);
+            Consumer2 worker = new Consumer2(name, queue);
             workers.add(worker);
             Thread thread = new Thread(worker);
             thread.setName(name);
@@ -47,6 +47,6 @@ public class ArrayBlockingQueueTest {
         for (Thread thread : threads) {
             thread.join();
         }
-        log.info("totalConsumedAfterShutdown:{}", Consumer.totalConsumedAfterShutdown());
+        log.info("totalConsumedAfterShutdown:{}", Consumer2.totalConsumedAfterShutdown());
     }
 }
