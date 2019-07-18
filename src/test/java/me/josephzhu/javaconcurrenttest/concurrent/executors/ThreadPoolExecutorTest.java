@@ -60,7 +60,7 @@ public class ThreadPoolExecutorTest {
     public void test2() throws InterruptedException {
         AtomicInteger atomicInteger = new AtomicInteger();
 
-        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(10) {
+        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>(10) {
             @Override
             public boolean offer(Runnable e) {
                 return false;

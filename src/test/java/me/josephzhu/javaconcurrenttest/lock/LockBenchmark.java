@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class LockBenchmark {
 
-    final static int LOOP_COUNT = 100000000;
+    final static int LOOP_COUNT = 1000000;
 
     @Test
     public void test() throws Exception {

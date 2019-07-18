@@ -95,6 +95,7 @@ public class JavaConcurrentTestApplication {
             readerTask.start = start;
             readerTask.finish = finish;
             readerTask.loopCount = LOOP_COUNT / testCase.readerThreadCount;
+            if (testCase.lockTaskClass.getSimpleName().startsWith("Fair")) readerTask.loopCount /= 100;
             IntStream.rangeClosed(1, testCase.readerThreadCount)
                     .mapToObj(__ -> new Thread(readerTask))
                     .forEach(Thread::start);
@@ -104,6 +105,7 @@ public class JavaConcurrentTestApplication {
             writerTask.start = start;
             writerTask.finish = finish;
             writerTask.loopCount = LOOP_COUNT / testCase.writerThreadCount;
+            if (testCase.lockTaskClass.getSimpleName().startsWith("Fair")) writerTask.loopCount /= 100;
             IntStream.rangeClosed(1, testCase.writerThreadCount)
                     .mapToObj(__ -> new Thread(writerTask))
                     .forEach(Thread::start);
@@ -112,8 +114,13 @@ public class JavaConcurrentTestApplication {
         start.countDown();
         long begin = System.currentTimeMillis();
         finish.await();
-        if (testCase.writerThreadCount > 0)
-            Assert.assertEquals(LOOP_COUNT, LockTask.counter);
+        if (testCase.writerThreadCount > 0) {
+            if (testCase.lockTaskClass.getSimpleName().startsWith("Fair")) {
+                Assert.assertEquals(LOOP_COUNT / 100, LockTask.counter);
+            } else {
+                Assert.assertEquals(LOOP_COUNT, LockTask.counter);
+            }
+        }
         testCase.duration = System.currentTimeMillis() - begin;
         log.info("Finish benchmark:{}", testCase);
 
