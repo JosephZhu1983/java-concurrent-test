@@ -9,8 +9,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.StampedLock;
@@ -20,7 +22,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class JavaConcurrentTestApplication {
 
-    final static int LOOP_COUNT = 100000000;
+    final static int LOOP_COUNT = 10000000;
 
     public static void main(String[] args) throws Exception {
         new JavaConcurrentTestApplication().test();
@@ -65,6 +67,11 @@ public class JavaConcurrentTestApplication {
 
         testCases.forEach(testCase -> {
             System.gc();
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             try {
                 benchmark(testCase);
             } catch (Exception e) {
@@ -129,8 +136,9 @@ public class JavaConcurrentTestApplication {
 
 @Slf4j
 abstract class LockTask implements Runnable {
-    protected static long counter;
+    protected volatile static long counter;
     protected boolean write;
+    protected static HashMap<Long, String> hashMap = new HashMap<>();
     int loopCount;
     CountDownLatch start;
     CountDownLatch finish;
@@ -168,8 +176,9 @@ class SyncTask extends LockTask {
         synchronized (locker) {
             if (write) {
                 counter++;
+                hashMap.put(counter, "Data" + counter);
             } else {
-                long value = counter + 1;
+                hashMap.get(counter);
                 //log.debug("{}, {}", this.getClass().getSimpleName(), value);
             }
         }
@@ -190,9 +199,9 @@ class ReentrantLockTask extends LockTask {
             locker.lock();
             if (write) {
                 counter++;
+                hashMap.put(counter, "Data" + counter);
             } else {
-                long value = counter + 1;
-                //log.debug("{}, {}", this.getClass().getSimpleName(), value);
+                hashMap.get(counter);
             }
         } finally {
             locker.unlock();
@@ -214,9 +223,9 @@ class FairReentrantLockTask extends LockTask {
             locker.lock();
             if (write) {
                 counter++;
+                hashMap.put(counter, "Data" + counter);
             } else {
-                long value = counter + 1;
-                //log.debug("{}, {}", this.getClass().getSimpleName(), value);
+                hashMap.get(counter);
             }
         } finally {
             locker.unlock();
@@ -238,14 +247,14 @@ class ReentrantReadWriteLockTask extends LockTask {
             try {
                 locker.writeLock().lock();
                 counter++;
+                hashMap.put(counter, "Data" + counter);
             } finally {
                 locker.writeLock().unlock();
             }
         } else {
             try {
                 locker.readLock().lock();
-                long value = counter + 1;
-                //log.debug("{}, {}", this.getClass().getSimpleName(), value);
+                hashMap.get(counter);
             } finally {
                 locker.readLock().unlock();
             }
@@ -267,14 +276,14 @@ class FairReentrantReadWriteLockTask extends LockTask {
             try {
                 locker.writeLock().lock();
                 counter++;
+                hashMap.put(counter, "Data" + counter);
             } finally {
                 locker.writeLock().unlock();
             }
         } else {
             try {
                 locker.readLock().lock();
-                long value = counter + 1;
-                //log.debug("{}, {}", this.getClass().getSimpleName(), value);
+                hashMap.get(counter);
             } finally {
                 locker.readLock().unlock();
             }
@@ -295,20 +304,21 @@ class StampedLockTask extends LockTask {
         if (write) {
             long stamp = locker.writeLock();
             counter++;
+            hashMap.put(counter, "Data" + counter);
             locker.unlockWrite(stamp);
         } else {
             long stamp = locker.tryOptimisticRead();
-            long value = counter + 1;
+            long value = counter;
 
             if (!locker.validate(stamp)) {
                 stamp = locker.readLock();
                 try {
-                    value = counter + 1;
+                    value = counter;
                 } finally {
                     locker.unlockRead(stamp);
                 }
             }
-            //log.debug("{}, {}", this.getClass().getSimpleName(), value);
+            hashMap.get(value);
         }
     }
 }

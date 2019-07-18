@@ -116,7 +116,7 @@ public class LockBenchmark {
 
 @Slf4j
 abstract class LockTask implements Runnable {
-    protected static long counter;
+    protected static volatile long counter;
     protected boolean write;
     int loopCount;
     CountDownLatch start;
