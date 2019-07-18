@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class LockBenchmark {
 
-    final static int LOOP_COUNT = 10000000;
+    final static int LOOP_COUNT = 30000000;
 
     @Test
     public void test() throws Exception {
@@ -30,16 +30,26 @@ public class LockBenchmark {
                 StampedLockTask.class
         ).forEach(syncTaskClass -> {
             testCases.add(new TestCase(syncTaskClass, 1, 0));
+            testCases.add(new TestCase(syncTaskClass, 10, 0));
             testCases.add(new TestCase(syncTaskClass, 100, 0));
             testCases.add(new TestCase(syncTaskClass, 0, 1));
+            testCases.add(new TestCase(syncTaskClass, 0, 10));
             testCases.add(new TestCase(syncTaskClass, 0, 100));
 
-            testCases.add(new TestCase(syncTaskClass, 1, 0));
+            testCases.add(new TestCase(syncTaskClass, 1, 1));
             testCases.add(new TestCase(syncTaskClass, 10, 10));
-            testCases.add(new TestCase(syncTaskClass, 100, 1000));
+            testCases.add(new TestCase(syncTaskClass, 20, 20));
+            testCases.add(new TestCase(syncTaskClass, 50, 50));
+            testCases.add(new TestCase(syncTaskClass, 100, 100));
+            testCases.add(new TestCase(syncTaskClass, 200, 200));
+            testCases.add(new TestCase(syncTaskClass, 500, 500));
             testCases.add(new TestCase(syncTaskClass, 1000, 1000));
+            testCases.add(new TestCase(syncTaskClass, 1500, 1500));
+            testCases.add(new TestCase(syncTaskClass, 2000, 2000));
 
-            testCases.add(new TestCase(syncTaskClass, 100, 1));
+            testCases.add(new TestCase(syncTaskClass, 10, 1));
+            testCases.add(new TestCase(syncTaskClass, 100, 10));
+            testCases.add(new TestCase(syncTaskClass, 1, 10));
             testCases.add(new TestCase(syncTaskClass, 1, 100));
         });
 
@@ -55,7 +65,7 @@ public class LockBenchmark {
         StringBuilder stringBuilder = new StringBuilder();
         int index = 0;
         for (TestCase testCase : testCases) {
-            if (index % 10 == 0)
+            if (index % 20 == 0)
                 stringBuilder.append("\r\n");
             stringBuilder.append(testCase.duration);
             stringBuilder.append(",");
@@ -68,7 +78,6 @@ public class LockBenchmark {
     private void benchmark(TestCase testCase) throws Exception {
         LockTask.counter = 0;
         log.info("Start benchmark:{}", testCase);
-        long begin = System.currentTimeMillis();
         CountDownLatch start = new CountDownLatch(1);
         CountDownLatch finish = new CountDownLatch(testCase.readerThreadCount + testCase.writerThreadCount);
         if (testCase.readerThreadCount > 0) {
@@ -91,6 +100,7 @@ public class LockBenchmark {
         }
 
         start.countDown();
+        long begin = System.currentTimeMillis();
         finish.await();
         if (testCase.writerThreadCount > 0)
             Assert.assertEquals(LOOP_COUNT, LockTask.counter);
