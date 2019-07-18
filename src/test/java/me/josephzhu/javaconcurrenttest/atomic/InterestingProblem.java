@@ -1,4 +1,4 @@
-package me.josephzhu.javaconcurrenttest;
+package me.josephzhu.javaconcurrenttest.atomic;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
