@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class LockBenchmark {
 
-    final static int LOOP_COUNT = 30000000;
+    final static int LOOP_COUNT = 100000000;
 
     @Test
     public void test() throws Exception {
@@ -26,31 +26,35 @@ public class LockBenchmark {
 
         Arrays.asList(SyncTask.class,
                 ReentrantLockTask.class,
+                FairReentrantLockTask.class,
                 ReentrantReadWriteLockTask.class,
+                FairReentrantReadWriteLockTask.class,
                 StampedLockTask.class
         ).forEach(syncTaskClass -> {
             testCases.add(new TestCase(syncTaskClass, 1, 0));
             testCases.add(new TestCase(syncTaskClass, 10, 0));
-            testCases.add(new TestCase(syncTaskClass, 100, 0));
             testCases.add(new TestCase(syncTaskClass, 0, 1));
             testCases.add(new TestCase(syncTaskClass, 0, 10));
-            testCases.add(new TestCase(syncTaskClass, 0, 100));
 
             testCases.add(new TestCase(syncTaskClass, 1, 1));
             testCases.add(new TestCase(syncTaskClass, 10, 10));
-            testCases.add(new TestCase(syncTaskClass, 20, 20));
             testCases.add(new TestCase(syncTaskClass, 50, 50));
             testCases.add(new TestCase(syncTaskClass, 100, 100));
-            testCases.add(new TestCase(syncTaskClass, 200, 200));
             testCases.add(new TestCase(syncTaskClass, 500, 500));
             testCases.add(new TestCase(syncTaskClass, 1000, 1000));
-            testCases.add(new TestCase(syncTaskClass, 1500, 1500));
-            testCases.add(new TestCase(syncTaskClass, 2000, 2000));
+
+            testCases.add(new TestCase(syncTaskClass, 1, 10));
+            testCases.add(new TestCase(syncTaskClass, 10, 100));
+            testCases.add(new TestCase(syncTaskClass, 10, 200));
+            testCases.add(new TestCase(syncTaskClass, 10, 500));
+            testCases.add(new TestCase(syncTaskClass, 10, 1000));
 
             testCases.add(new TestCase(syncTaskClass, 10, 1));
             testCases.add(new TestCase(syncTaskClass, 100, 10));
-            testCases.add(new TestCase(syncTaskClass, 1, 10));
-            testCases.add(new TestCase(syncTaskClass, 1, 100));
+            testCases.add(new TestCase(syncTaskClass, 200, 10));
+            testCases.add(new TestCase(syncTaskClass, 500, 10));
+            testCases.add(new TestCase(syncTaskClass, 1000, 10));
+
         });
 
         testCases.forEach(testCase -> {
@@ -110,6 +114,7 @@ public class LockBenchmark {
     }
 }
 
+@Slf4j
 abstract class LockTask implements Runnable {
     protected static long counter;
     protected boolean write;
@@ -137,6 +142,7 @@ abstract class LockTask implements Runnable {
     abstract protected void doTask();
 }
 
+@Slf4j
 class SyncTask extends LockTask {
     private static Object locker = new Object();
 
@@ -151,11 +157,13 @@ class SyncTask extends LockTask {
                 counter++;
             } else {
                 long value = counter + 1;
+                //log.debug("{}, {}", this.getClass().getSimpleName(), value);
             }
         }
     }
 }
 
+@Slf4j
 class ReentrantLockTask extends LockTask {
     private static ReentrantLock locker = new ReentrantLock();
 
@@ -165,19 +173,47 @@ class ReentrantLockTask extends LockTask {
 
     @Override
     protected void doTask() {
-        locker.lock();
-        if (write) {
-            counter++;
-        } else {
-            long value = counter + 1;
+        try {
+            locker.lock();
+            if (write) {
+                counter++;
+            } else {
+                long value = counter + 1;
+                //log.debug("{}, {}", this.getClass().getSimpleName(), value);
+            }
+        } finally {
+            locker.unlock();
         }
-        locker.unlock();
     }
 }
 
+@Slf4j
+class FairReentrantLockTask extends LockTask {
+    private static ReentrantLock locker = new ReentrantLock(true);
+
+    public FairReentrantLockTask(Boolean write) {
+        super(write);
+    }
+
+    @Override
+    protected void doTask() {
+        try {
+            locker.lock();
+            if (write) {
+                counter++;
+            } else {
+                long value = counter + 1;
+                //log.debug("{}, {}", this.getClass().getSimpleName(), value);
+            }
+        } finally {
+            locker.unlock();
+        }
+    }
+}
+
+@Slf4j
 class ReentrantReadWriteLockTask extends LockTask {
-    private static ReentrantReadWriteLock.WriteLock writeLock = new ReentrantReadWriteLock().writeLock();
-    private static ReentrantReadWriteLock.ReadLock readLock = new ReentrantReadWriteLock().readLock();
+    private static ReentrantReadWriteLock locker = new ReentrantReadWriteLock();
 
     public ReentrantReadWriteLockTask(Boolean write) {
         super(write);
@@ -186,17 +222,54 @@ class ReentrantReadWriteLockTask extends LockTask {
     @Override
     protected void doTask() {
         if (write) {
-            writeLock.lock();
-            counter++;
-            writeLock.unlock();
+            try {
+                locker.writeLock().lock();
+                counter++;
+            } finally {
+                locker.writeLock().unlock();
+            }
         } else {
-            readLock.lock();
-            long value = counter + 1;
-            readLock.unlock();
+            try {
+                locker.readLock().lock();
+                long value = counter + 1;
+                //log.debug("{}, {}", this.getClass().getSimpleName(), value);
+            } finally {
+                locker.readLock().unlock();
+            }
         }
     }
 }
 
+@Slf4j
+class FairReentrantReadWriteLockTask extends LockTask {
+    private static ReentrantReadWriteLock locker = new ReentrantReadWriteLock(true);
+
+    public FairReentrantReadWriteLockTask(Boolean write) {
+        super(write);
+    }
+
+    @Override
+    protected void doTask() {
+        if (write) {
+            try {
+                locker.writeLock().lock();
+                counter++;
+            } finally {
+                locker.writeLock().unlock();
+            }
+        } else {
+            try {
+                locker.readLock().lock();
+                long value = counter + 1;
+                //log.debug("{}, {}", this.getClass().getSimpleName(), value);
+            } finally {
+                locker.readLock().unlock();
+            }
+        }
+    }
+}
+
+@Slf4j
 class StampedLockTask extends LockTask {
     private static StampedLock locker = new StampedLock();
 
@@ -213,6 +286,7 @@ class StampedLockTask extends LockTask {
         } else {
             long stamp = locker.tryOptimisticRead();
             long value = counter + 1;
+
             if (!locker.validate(stamp)) {
                 stamp = locker.readLock();
                 try {
@@ -221,6 +295,7 @@ class StampedLockTask extends LockTask {
                     locker.unlockRead(stamp);
                 }
             }
+            //log.debug("{}, {}", this.getClass().getSimpleName(), value);
         }
     }
 }
