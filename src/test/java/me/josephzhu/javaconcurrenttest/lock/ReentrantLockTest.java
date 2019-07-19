@@ -14,6 +14,20 @@ import java.util.stream.IntStream;
 public class ReentrantLockTest {
 
     @Test
+    public void test2() {
+        ReentrantLock reentrantLock = new ReentrantLock(true);
+        int i = 0;
+        try {
+            while (true) {
+                reentrantLock.lock();
+                i++;
+            }
+        } catch (Error error) {
+            log.error("count:{}", i, error);
+        }
+    }
+
+    @Test
     public void test() throws InterruptedException {
 
         ReentrantLock reentrantLock = new ReentrantLock(true);

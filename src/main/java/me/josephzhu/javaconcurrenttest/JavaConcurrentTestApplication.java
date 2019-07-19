@@ -195,8 +195,8 @@ class ReentrantLockTask extends LockTask {
 
     @Override
     protected void doTask() {
+        locker.lock();
         try {
-            locker.lock();
             if (write) {
                 counter++;
                 hashMap.put(counter, "Data" + counter);
@@ -219,8 +219,8 @@ class FairReentrantLockTask extends LockTask {
 
     @Override
     protected void doTask() {
+        locker.lock();
         try {
-            locker.lock();
             if (write) {
                 counter++;
                 hashMap.put(counter, "Data" + counter);
@@ -244,16 +244,16 @@ class ReentrantReadWriteLockTask extends LockTask {
     @Override
     protected void doTask() {
         if (write) {
+            locker.writeLock().lock();
             try {
-                locker.writeLock().lock();
                 counter++;
                 hashMap.put(counter, "Data" + counter);
             } finally {
                 locker.writeLock().unlock();
             }
         } else {
+            locker.readLock().lock();
             try {
-                locker.readLock().lock();
                 hashMap.get(counter);
             } finally {
                 locker.readLock().unlock();
@@ -273,16 +273,16 @@ class FairReentrantReadWriteLockTask extends LockTask {
     @Override
     protected void doTask() {
         if (write) {
+            locker.writeLock().lock();
             try {
-                locker.writeLock().lock();
                 counter++;
                 hashMap.put(counter, "Data" + counter);
             } finally {
                 locker.writeLock().unlock();
             }
         } else {
+            locker.readLock().lock();
             try {
-                locker.readLock().lock();
                 hashMap.get(counter);
             } finally {
                 locker.readLock().unlock();

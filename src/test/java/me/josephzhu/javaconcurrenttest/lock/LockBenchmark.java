@@ -173,8 +173,8 @@ class ReentrantLockTask extends LockTask {
 
     @Override
     protected void doTask() {
+        locker.lock();
         try {
-            locker.lock();
             if (write) {
                 counter++;
             } else {
@@ -197,8 +197,10 @@ class FairReentrantLockTask extends LockTask {
 
     @Override
     protected void doTask() {
+        locker.lock();
+
         try {
-            locker.lock();
+
             if (write) {
                 counter++;
             } else {
@@ -221,16 +223,19 @@ class ReentrantReadWriteLockTask extends LockTask {
 
     @Override
     protected void doTask() {
+        locker.writeLock().lock();
+
         if (write) {
             try {
-                locker.writeLock().lock();
+
                 counter++;
             } finally {
                 locker.writeLock().unlock();
             }
         } else {
+            locker.readLock().lock();
+
             try {
-                locker.readLock().lock();
                 long value = counter + 1;
                 //log.debug("{}, {}", this.getClass().getSimpleName(), value);
             } finally {
@@ -251,15 +256,15 @@ class FairReentrantReadWriteLockTask extends LockTask {
     @Override
     protected void doTask() {
         if (write) {
+            locker.writeLock().lock();
             try {
-                locker.writeLock().lock();
                 counter++;
             } finally {
                 locker.writeLock().unlock();
             }
         } else {
+            locker.readLock().lock();
             try {
-                locker.readLock().lock();
                 long value = counter + 1;
                 //log.debug("{}, {}", this.getClass().getSimpleName(), value);
             } finally {
