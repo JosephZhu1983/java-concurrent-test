@@ -303,9 +303,12 @@ class StampedLockTask extends LockTask {
     protected void doTask() {
         if (write) {
             long stamp = locker.writeLock();
-            counter++;
-            hashMap.put(counter, "Data" + counter);
-            locker.unlockWrite(stamp);
+            try {
+                counter++;
+                hashMap.put(counter, "Data" + counter);
+            } finally {
+                locker.unlockWrite(stamp);
+            }
         } else {
             long stamp = locker.tryOptimisticRead();
             long value = counter;
