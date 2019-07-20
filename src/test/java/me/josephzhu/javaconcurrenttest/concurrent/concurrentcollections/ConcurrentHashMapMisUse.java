@@ -20,16 +20,36 @@ public class ConcurrentHashMapMisUse {
     @Test
     public void test2() {
         Map<String, String> map = new HashMap<>();
-        map.put("aa", null);
-        Map<Long, Long> concurrentMap = LongStream.rangeClosed(1, 10)
-                .boxed()
-                .collect(Collectors.toConcurrentMap(Function.identity(), Function.identity()));
-        log.debug(concurrentMap.getClass().toString());
+        try {
+            map.put("aa", null);
+        } catch (Exception ex) {
+            log.error("HashMap value == null", ex);
+        }
+
+        try {
+            map.put(null, "aa");
+        } catch (Exception ex) {
+            log.error("HashMap key == null", ex);
+        }
+
+        Map<String, String> concurrentHashMap = new ConcurrentHashMap<>();
+        try {
+            concurrentHashMap.put("aa", null);
+        } catch (Exception ex) {
+            log.error("ConcurrentHashMap value == null", ex);
+        }
+
+        try {
+            concurrentHashMap.put(null, "aa");
+        } catch (Exception ex) {
+            log.error("ConcurrentHashMap key == null", ex);
+        }
+
     }
 
     @Test
     public void test() throws InterruptedException {
-        int limit = 1000;
+        int limit = 10000;
         ConcurrentHashMap<String, Long> concurrentHashMap = LongStream.rangeClosed(1, limit - 10)
                 .boxed()
                 .collect(Collectors.toConcurrentMap(i -> UUID.randomUUID().toString(), Function.identity(),

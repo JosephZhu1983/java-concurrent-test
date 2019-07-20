@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-import static java.util.function.Function.identity;
-
 @Slf4j
 public class ConcurrentHashMapReduceTest {
 
@@ -22,10 +20,6 @@ public class ConcurrentHashMapReduceTest {
 
     @Test
     public void test() {
-        Map<String, Long> map = LongStream.rangeClosed(1, itemCount)
-                .boxed()
-                .collect(Collectors.toMap(i -> "item" + i, identity()));
-
         ConcurrentHashMap<String, Long> concurrentHashMap = LongStream.rangeClosed(1, itemCount)
                 .boxed()
                 .collect(Collectors.toMap(i -> "item" + i, Function.identity(),
@@ -33,7 +27,7 @@ public class ConcurrentHashMapReduceTest {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("normal");
-        normal(map);
+        normal(concurrentHashMap);
         stopWatch.stop();
         stopWatch.start("concurrent with parallelismThreshold=1");
         concurrent(concurrentHashMap, 1);
@@ -44,7 +38,7 @@ public class ConcurrentHashMapReduceTest {
         log.info(stopWatch.prettyPrint());
     }
 
-    private void normal(Map<String, Long> map) {
+    private void normal(ConcurrentHashMap<String, Long> map) {
         IntStream.rangeClosed(1, loopCount).forEach(__ -> {
             long sum = 0L;
             for (Map.Entry<String, Long> item : map.entrySet()) {

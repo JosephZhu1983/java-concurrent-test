@@ -31,10 +31,10 @@ public class Player implements Runnable {
 
     @Override
     public void run() {
-        totalPlayer.incrementAndGet();
         try {
             enterTime = LocalDateTime.now();
             semaphore.acquire();
+            totalPlayer.incrementAndGet();
             TimeUnit.MILLISECONDS.sleep(10);
         } catch (InterruptedException e) {
             e.printStackTrace();

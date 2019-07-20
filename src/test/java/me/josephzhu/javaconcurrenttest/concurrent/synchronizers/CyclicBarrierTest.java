@@ -14,11 +14,11 @@ public class CyclicBarrierTest {
     @Test
     public void test() throws InterruptedException {
 
-        int taskCount = 100;
+        int taskCount = 10;
         AtomicInteger atomicInteger = new AtomicInteger(0);
         CyclicBarrier cyclicBarrier = new CyclicBarrier(taskCount);
-        ExecutorService threadPool = Executors.newFixedThreadPool(100);
-        for (int j = 0; j < 10; j++) {
+        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+        for (int j = 0; j < 4; j++) {
             for (int i = 0; i < taskCount; i++) {
                 final String index = String.format("%d-%d", j, i);
                 threadPool.execute(() -> {

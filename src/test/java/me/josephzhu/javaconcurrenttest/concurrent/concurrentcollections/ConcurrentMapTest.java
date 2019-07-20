@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 public class ConcurrentMapTest {
 
     int loopCount = 100000000;
-    int threadCount = 1;
+    int threadCount = 10;
     int itemCount = 10000;
 
     @Test
@@ -61,7 +61,7 @@ public class ConcurrentMapTest {
         ));
         forkJoinPool.shutdown();
         forkJoinPool.awaitTermination(1, TimeUnit.HOURS);
-        //log.debug("concurrentHashMap:{}", freqs);
+        log.debug("concurrentHashMap:{}", freqs);
     }
 
     private void concurrentSkipListMap() throws InterruptedException {
@@ -74,6 +74,6 @@ public class ConcurrentMapTest {
         ));
         forkJoinPool.shutdown();
         forkJoinPool.awaitTermination(1, TimeUnit.HOURS);
-        //log.debug("concurrentSkipListMap:{}", freqs);
+        log.debug("concurrentSkipListMap:{}", freqs);
     }
 }
