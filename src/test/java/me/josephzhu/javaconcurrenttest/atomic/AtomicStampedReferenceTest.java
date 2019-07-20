@@ -32,7 +32,7 @@ public class AtomicStampedReferenceTest {
 
         Thread thread2 = new Thread(() -> {
             int value = atomicInteger.get();
-            System.out.println("thread 2 read value: " + value);
+            log.info("thread 2 read value: " + value);
             if (atomicInteger.compareAndSet(value, 2)) {
                 log.info("thread 2 update from " + value + " to 2");
 
@@ -99,6 +99,9 @@ public class AtomicStampedReferenceTest {
                 if (atomicStampedReference.compareAndSet(value, 1, stamp, stamp + 1)) {
                     log.info("thread 2 update from " + value + " to 1");
                 }
+                value = atomicStampedReference.get(stampHolder);
+                stamp = stampHolder[0];
+                log.info("thread 2 read value: " + value + ", stamp: " + stamp);
             }
         });
         thread2.start();

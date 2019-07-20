@@ -19,16 +19,15 @@ import java.util.stream.IntStream;
 public class AccumulatorBenchmark {
 
     private StopWatch stopWatch = new StopWatch();
-    private Map<String, IntConsumer> tasks = new HashMap<>();
+    static final int threadCount = 100;
+    static final int taskCount = 1000000000;
+    static final AtomicLong atomicLong = new AtomicLong();
+    static final LongAdder longAdder = new LongAdder();
+    static final LongAccumulator longAccumulator = new LongAccumulator(Long::sum, 0L);
 
     @Test
     public void test() {
-
-        int threadCount = 100;
-        int taskCount = 1000000000;
-        AtomicLong atomicLong = new AtomicLong();
-        LongAdder longAdder = new LongAdder();
-        LongAccumulator longAccumulator = new LongAccumulator(Long::sum, 0L);
+        Map<String, IntConsumer> tasks = new HashMap<>();
         tasks.put("atomicLong", i -> atomicLong.incrementAndGet());
         tasks.put("longAdder", i -> longAdder.increment());
         tasks.put("longAccumulator", i -> longAccumulator.accumulate(1L));
