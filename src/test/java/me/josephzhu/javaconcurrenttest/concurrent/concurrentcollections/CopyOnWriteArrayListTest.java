@@ -15,14 +15,35 @@ import java.util.stream.IntStream;
 @Slf4j
 public class CopyOnWriteArrayListTest {
 
-    int count = 10000000;
+    @Test
+    public void testWrite() {
+        List<Integer> copyOnWriteArrayList = new CopyOnWriteArrayList<>();
+        List<Integer> arrayList = new ArrayList<>();
+        List<Integer> synchronizedList = Collections.synchronizedList(new ArrayList<>());
+        StopWatch stopWatch = new StopWatch();
+        int loopCount = 100000;
+        stopWatch.start("copyOnWriteArrayList");
+        IntStream.rangeClosed(1, loopCount).parallel().forEach(__ -> copyOnWriteArrayList.add(ThreadLocalRandom.current().nextInt(loopCount)));
+        stopWatch.stop();
+        stopWatch.start("arrayList");
+        IntStream.rangeClosed(1, loopCount).parallel().forEach(__ -> {
+            synchronized (arrayList) {
+                arrayList.add(ThreadLocalRandom.current().nextInt(loopCount));
+            }
+        });
+        stopWatch.stop();
+        stopWatch.start("synchronizedList");
+        IntStream.range(0, loopCount).parallel().forEach(__ -> synchronizedList.add(ThreadLocalRandom.current().nextInt(loopCount)));
+        stopWatch.stop();
+        log.info(stopWatch.prettyPrint());
+    }
 
     private void addAll(List<Integer> list) {
-        list.addAll(IntStream.rangeClosed(1, count).boxed().collect(Collectors.toList()));
+        list.addAll(IntStream.rangeClosed(1, 10000000).boxed().collect(Collectors.toList()));
     }
 
     @Test
-    public void test() {
+    public void testRead() {
         List<Integer> copyOnWriteArrayList = new CopyOnWriteArrayList<>();
         List<Integer> arrayList = new ArrayList<>();
         List<Integer> synchronizedList = Collections.synchronizedList(new ArrayList<>());
@@ -31,6 +52,7 @@ public class CopyOnWriteArrayListTest {
         addAll(synchronizedList);
         StopWatch stopWatch = new StopWatch();
         int loopCount = 100000000;
+        int count = arrayList.size();
         stopWatch.start("copyOnWriteArrayList");
         IntStream.rangeClosed(1, loopCount).parallel().forEach(__ -> copyOnWriteArrayList.get(ThreadLocalRandom.current().nextInt(count)));
         stopWatch.stop();

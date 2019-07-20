@@ -12,8 +12,8 @@ import java.util.stream.IntStream;
 @Slf4j
 public class ConcurrentMapTest {
 
-    int loopCount = 10000000;
-    int threadCount = 10;
+    int loopCount = 100000000;
+    int threadCount = 1;
     int itemCount = 10000;
 
     @Test
