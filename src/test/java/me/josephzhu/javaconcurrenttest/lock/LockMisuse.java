@@ -22,8 +22,8 @@ public class LockMisuse {
 }
 
 class Container {
-    static int counter = 0;
-    Object locker = new Object();
+    static volatile int counter = 0;
+    static Object locker = new Object();
 
     void test() {
         synchronized (locker) {
