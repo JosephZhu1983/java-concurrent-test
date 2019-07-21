@@ -57,12 +57,17 @@ public class PhaserTest {
     }
 
     private void doPostOperation(Phaser phaser) {
-        if (phaser.getPhase() > 0 || phaser.isTerminated()) {
-            log.info("phase:{},registered:{},unarrived:{},arrived:{},result:{}",
-                    phaser.getPhase(),
-                    phaser.getRegisteredParties(),
-                    phaser.getUnarrivedParties(),
-                    phaser.getArrivedParties(), atomicInteger.get());
+        while (phaser.getArrivedParties() < 100) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+        log.info("phase:{},registered:{},unarrived:{},arrived:{},result:{}",
+                phaser.getPhase(),
+                phaser.getRegisteredParties(),
+                phaser.getUnarrivedParties(),
+                phaser.getArrivedParties(), atomicInteger.get());
     }
 }

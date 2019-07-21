@@ -1,0 +1,25 @@
+package me.josephzhu.javaconcurrenttest.concurrent.completablefuture;
+
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+import java.math.BigDecimal;
+
+@Data
+@RequiredArgsConstructor
+public class Order {
+    private final Long id;
+    private final String from;
+    private final String to;
+    private final Long userId;
+    private final Long merchantId;
+    private final Long couponId;
+    private final BigDecimal itemPrice;
+
+    private User user;
+    private Merchant merchant;
+    private BigDecimal orderPrice;
+    private BigDecimal deliverPrice;
+    private BigDecimal couponPrice;
+    private BigDecimal totalPrice;
+}
