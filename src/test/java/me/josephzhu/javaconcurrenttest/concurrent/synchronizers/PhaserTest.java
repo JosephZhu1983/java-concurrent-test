@@ -14,29 +14,32 @@ import java.util.stream.IntStream;
 @Slf4j
 public class PhaserTest {
 
+    AtomicInteger atomicInteger = new AtomicInteger();
+
     @Test
     public void test() throws InterruptedException {
-        AtomicInteger atomicInteger = new AtomicInteger();
         int iterations = 10;
         int tasks = 100;
         runTasks(IntStream.rangeClosed(1, tasks)
                 .mapToObj(index -> new Thread(() -> {
-                    //log.debug("{}",index);
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     atomicInteger.incrementAndGet();
                 }))
                 .collect(Collectors.toList()), iterations);
-        log.info("tasks:{},iterations:{},result:{}", tasks, iterations, atomicInteger.get());
         Assert.assertEquals(tasks * iterations, atomicInteger.get());
     }
 
-    private void runTasks(List<Runnable> tasks, int iterations) throws InterruptedException {
+    private void runTasks(List<Runnable> tasks, int iterations) {
         Phaser phaser = new Phaser() {
             protected boolean onAdvance(int phase, int registeredParties) {
                 return phase >= iterations - 1 || registeredParties == 0;
             }
         };
         phaser.register();
-
         for (Runnable task : tasks) {
             phaser.register();
             new Thread(() -> {
@@ -46,16 +49,20 @@ public class PhaserTest {
                 } while (!phaser.isTerminated());
             }).start();
         }
-
         while (!phaser.isTerminated()) {
-            TimeUnit.MILLISECONDS.sleep(10);
-            log.debug("phase:{},registered:{},unarrived:{},arrived:{}",
+            doPostOperation(phaser);
+            phaser.arriveAndAwaitAdvance();
+        }
+        doPostOperation(phaser);
+    }
+
+    private void doPostOperation(Phaser phaser) {
+        if (phaser.getPhase() > 0 || phaser.isTerminated()) {
+            log.info("phase:{},registered:{},unarrived:{},arrived:{},result:{}",
                     phaser.getPhase(),
                     phaser.getRegisteredParties(),
                     phaser.getUnarrivedParties(),
-                    phaser.getArrivedParties());
-            phaser.arriveAndAwaitAdvance();
+                    phaser.getArrivedParties(), atomicInteger.get());
         }
-
     }
 }
