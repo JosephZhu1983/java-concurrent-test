@@ -23,18 +23,19 @@ public class CompletableFutureTest {
         long begin = System.currentTimeMillis();
 
         Order order1 = CompletableFuture.supplyAsync(() -> Services.getOrder(orderId))
-                .thenApplyAsync(order -> {
-                    CompletableFuture.allOf(CompletableFuture.runAsync(() -> order.setUser(Services.getUser(order.getUserId()))),
-                            CompletableFuture.runAsync(() -> order.setMerchant(Services.getMerchant(order.getCouponId()))),
-                            CompletableFuture.runAsync(() -> order.setCouponPrice(Services.getCouponDiscount(order.getCouponId())))).join();
-                    return order;
-                }).thenApplyAsync(order -> {
-                    order.setOrderPrice(Services.calcOrderPrice(order.getItemPrice(), order.getUser().getVip()));
-                    return order;
-                }).join();
+                .whenCompleteAsync((order, getOrderException) -> CompletableFuture.allOf(
+                        CompletableFuture.runAsync(() -> order.setUser(Services.getUser(order.getUserId()))),
+                        CompletableFuture.runAsync(() -> order.setMerchant(Services.getMerchant(order.getMerchantId())))
+                ).join()).whenCompleteAsync((order, throwable) -> CompletableFuture.allOf(CompletableFuture.supplyAsync(() -> Services.calcOrderPrice(order.getItemPrice(), order.getUser().getVip()))
+                                .thenAccept(order::setOrderPrice),
+                        CompletableFuture.supplyAsync(() -> Services.getWalkDistance("from", "to"))
+                                .exceptionally(ex -> Services.getDirectDistance("from", "to"))
+                                .thenAcceptBoth(CompletableFuture.anyOf(CompletableFuture.supplyAsync(Services::getWeatherA),
+                                        CompletableFuture.supplyAsync(Services::getWeatherB)), (distance, weather) -> order.setDeliverPrice(Services.calcDeliverPrice(order.getMerchant().getAverageWaitMinutes(), distance, (String) weather))))
+                        .whenComplete((aVoid, __) -> order.setTotalPrice(order.getOrderPrice().add(order.getDeliverPrice())))
+                        .join()).get();
+
         log.info("order:{} took:{}", order1, System.currentTimeMillis() - begin);
-
-
     }
 
     @Test
@@ -47,7 +48,6 @@ public class CompletableFutureTest {
         Order order = Services.getOrder(orderId);
         order.setUser(Services.getUser(order.getUserId()));
         order.setMerchant(Services.getMerchant(order.getMerchantId()));
-        order.setCouponPrice(Services.getCouponDiscount(order.getCouponId()));
         Integer distance = null;
         try {
             distance = Services.getWalkDistance(order.getFrom(), order.getTo());
@@ -71,7 +71,7 @@ public class CompletableFutureTest {
         }
         order.setDeliverPrice(Services.calcDeliverPrice(order.getMerchant().getAverageWaitMinutes(), distance, weather));
         order.setOrderPrice(Services.calcOrderPrice(order.getItemPrice(), order.getUser().getVip()));
-        order.setTotalPrice(order.getOrderPrice().add(order.getDeliverPrice()).subtract(order.getCouponPrice()));
+        order.setTotalPrice(order.getOrderPrice().add(order.getDeliverPrice()));
         log.info("order:{} took:{}", order, System.currentTimeMillis() - begin);
     }
 }
