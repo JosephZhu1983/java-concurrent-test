@@ -16,7 +16,7 @@ public class Services {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return new Order(id, "from", "to", 1L, 2L, new BigDecimal("20"));
+        return new Order(id, "from", "to", 1L, 2L, 3L, new BigDecimal("20"));
     }
 
     public static User getUser(Long id) {
@@ -35,6 +35,15 @@ public class Services {
             e.printStackTrace();
         }
         return Merchant.builder().id(id).averageWaitMinutes(15).build();
+    }
+
+    public static BigDecimal getCouponPrice(Long id) {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return new BigDecimal("1");
     }
 
     public static BigDecimal calcOrderPrice(BigDecimal itemPrice, boolean isVip) {

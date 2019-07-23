@@ -13,10 +13,12 @@ public class Order {
     private final String to;
     private final Long userId;
     private final Long merchantId;
+    private final Long couponId;
     private final BigDecimal itemPrice;
 
     private User user;
     private Merchant merchant;
+    private BigDecimal couponPrice;
     private BigDecimal orderPrice;
     private BigDecimal deliverPrice;
     private BigDecimal totalPrice;
